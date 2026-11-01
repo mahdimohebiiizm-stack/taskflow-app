@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:task_flow/core/error/exceptions.dart';
 import 'package:task_flow/features/tasks/data/models/focus_session_model.dart';
 

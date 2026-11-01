@@ -15,7 +15,7 @@ class DatabaseKeyManager {
 
   const DatabaseKeyManager({
     FlutterSecureStorage secureStorage = const FlutterSecureStorage(
-      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      aOptions: AndroidOptions(),
       iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
     ),
   }) : _secureStorage = secureStorage;

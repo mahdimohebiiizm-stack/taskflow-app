@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:task_flow/core/error/exceptions.dart';
 import 'package:task_flow/features/tasks/data/models/expense_item_model.dart';
 import 'package:task_flow/features/tasks/data/models/sub_task_model.dart';

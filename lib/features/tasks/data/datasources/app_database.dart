@@ -35,9 +35,8 @@ final class AppDatabase {
     DatabaseKeyManager? keyManager,
   }) async {
     try {
-      final factory = databaseFactory ?? databaseFactorySqflitePlugin;
       final resolvedPath = databasePath ??
-          p.join(await factory.getDatabasesPath(), defaultDatabaseFileName);
+          p.join(await getDatabasesPath(), defaultDatabaseFileName);
 
       final password = encryptionKey ??
           (databasePath == inMemoryDatabasePath
@@ -45,21 +44,35 @@ final class AppDatabase {
               : await (keyManager ?? const DatabaseKeyManager())
                   .getOrCreateEncryptionKey());
 
-      return await factory.openDatabase(
+      Future<void> onConfigure(Database db) => configureDatabase(db);
+      Future<void> onCreate(Database db, int targetVersion) async {
+        await createV1Schema(db);
+        if (targetVersion >= 2) {
+          await upgradeSchema(db, 1, targetVersion);
+        }
+      }
+      Future<void> onUpgrade(Database db, int oldVersion, int newVersion) =>
+          upgradeSchema(db, oldVersion, newVersion);
+
+      if (databaseFactory != null) {
+        return await databaseFactory.openDatabase(
+          resolvedPath,
+          options: OpenDatabaseOptions(
+            version: version,
+            onConfigure: onConfigure,
+            onCreate: onCreate,
+            onUpgrade: onUpgrade,
+          ),
+        );
+      }
+
+      return await openDatabase(
         resolvedPath,
-        options: OpenDatabaseOptions(
-          version: version,
-          password: password,
-          onConfigure: configureDatabase,
-          onCreate: (db, targetVersion) async {
-            await createV1Schema(db);
-            if (targetVersion >= 2) {
-              await upgradeSchema(db, 1, targetVersion);
-            }
-          },
-          onUpgrade: (db, oldVersion, newVersion) =>
-              upgradeSchema(db, oldVersion, newVersion),
-        ),
+        version: version,
+        password: password,
+        onConfigure: onConfigure,
+        onCreate: onCreate,
+        onUpgrade: onUpgrade,
       );
     } catch (error) {
       throw LocalDatabaseException(

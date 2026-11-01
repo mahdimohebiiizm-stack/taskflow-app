@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:task_flow/core/error/exceptions.dart';
 import 'package:task_flow/core/theme/app_theme_mode.dart';
 import 'package:task_flow/features/settings/data/models/user_settings_model.dart';

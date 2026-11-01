@@ -1,5 +1,5 @@
 import 'package:get_it/get_it.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:task_flow/core/concurrency/concurrent_dashboard_loader.dart';
 import 'package:task_flow/core/notifications/notification_service.dart';
 import 'package:task_flow/core/services/backup_service.dart';

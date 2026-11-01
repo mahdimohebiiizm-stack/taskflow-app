@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:task_flow/core/error/exceptions.dart';
 import 'package:task_flow/features/tasks/data/models/xp_ledger_model.dart';
 

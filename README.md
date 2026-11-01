@@ -4,7 +4,7 @@
 ### Enterprise Offline-First Productivity Engine
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.4+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.5+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Architecture](https://img.shields.io/badge/Clean_Architecture-Uncle_Bob-00C7B7?style=for-the-badge)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![State](https://img.shields.io/badge/State_Management-BLoC_8.1-blueviolet?style=for-the-badge&logo=bloc&logoColor=white)](https://bloclibrary.dev)
 [![Encryption](https://img.shields.io/badge/Database-SQLCipher_AES--256-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.zetetic.net/sqlcipher/)
@@ -79,7 +79,7 @@ flowchart TD
 
 | Domain / Layer | Technology | Version | Architectural Purpose & Rationale |
 | :--- | :--- | :--- | :--- |
-| **Client Platform** | Flutter SDK (Dart) | `>=3.4.0 <4.0.0` | Cross-platform AOT compilation guaranteeing 60/120 FPS jank-free rendering. |
+| **Client Platform** | Flutter SDK (Dart) | `>=3.5.0 <4.0.0` | Cross-platform AOT compilation guaranteeing 60/120 FPS jank-free rendering. |
 | **System Architecture** | Pure Clean Architecture | Enterprise Spec | Strict decoupled separation into Domain, Data, and Presentation layers. Zero framework leakage into domain. |
 | **State Management** | BLoC (`flutter_bloc`) | `^8.1.6` | Event-driven reactive unidirectional data flow. Enforces predictable state transitions and full testability. |
 | **Dependency Injection** | GetIt | `^8.0.0` | High-speed Service Locator managing thread-safe Singleton and Factory lifecycles across boundaries. |
@@ -255,8 +255,8 @@ jobs:
 ### 7. Local Development Quick Start
 
 #### Prerequisites
-- **Flutter SDK:** `>= 3.4.0` (Stable channel)
-- **Dart SDK:** `>= 3.4.0 < 4.0.0`
+- **Flutter SDK:** `>= 3.24.0` (Stable channel)
+- **Dart SDK:** `>= 3.5.0 < 4.0.0`
 - **Toolchains:** Android Studio (SDK 34+) / Xcode (15+) / Windows C++ Build Tools (CMake)
 
 ```bash
@@ -349,7 +349,7 @@ flowchart TD
 
 | لایه معماری | فناوری انتخابی | نسخه | هدف فنی و دلیل انتخاب |
 | :--- | :--- | :--- | :--- |
-| **هسته کلاینت** | فریم‌ورک Flutter (Dart) | `>=3.4.0 <4.0.0` | کامپایل بومی AOT جهت ارائه رندرینگ ۶۰ و ۱۲۰ فریم بر ثانیه بدون افت فریم. |
+| **هسته کلاینت** | فریم‌ورک Flutter (Dart) | `>=3.5.0 <4.0.0` | کامپایل بومی AOT جهت ارائه رندرینگ ۶۰ و ۱۲۰ فریم بر ثانیه بدون افت فریم. |
 | **الگوی معماری** | معماری تمیز (Clean Architecture) | استاندارد سازمانی | تفکیک کامل به لایه‌های Presentation، Domain و Data بدون نفوذ فریم‌ورک به هسته بیزینس. |
 | **مدیریت وضعیت** | الگوی BLoC (`flutter_bloc`) | `^8.1.6` | جریان واکنشی داده‌ها به صورت یک‌طرفه با رفتار کاملاً قطعی و قابلیت تست‌پذیری حداکثری. |
 | **تزریق وابستگی** | ابزار GetIt | `^8.0.0` | Service Locator پرسرعت برای مدیریت چرخه حیات سینگلتون‌ها و فکتوری‌ها در مرزهای لایه‌ها. |
@@ -525,8 +525,8 @@ jobs:
 ### ۷. راهنمای راه‌اندازی سریع در محیط توسعه
 
 #### پیش‌نیازهای محیط اجرا
-- **کیت توسعه نرم‌افزار Flutter:** نسخه `>= 3.4.0` (کانال Stable)
-- **کیت توسعه نرم‌افزار Dart:** نسخه `>= 3.4.0 < 4.0.0`
+- **کیت توسعه نرم‌افزار Flutter:** نسخه `>= 3.24.0` (کانال Stable)
+- **کیت توسعه نرم‌افزار Dart:** نسخه `>= 3.5.0 < 4.0.0`
 - **ابزارهای کامپایل محلی:** Android Studio (SDK 34+) / Xcode (15+) / Windows C++ Build Tools (CMake)
 
 ```bash

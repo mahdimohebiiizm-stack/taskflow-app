@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:task_flow/features/notifications/data/models/app_notification_model.dart';
 import 'package:task_flow/features/tasks/data/datasources/app_database.dart';
 import 'package:task_flow/features/tasks/data/models/expense_item_model.dart';

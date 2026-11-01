@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:task_flow/core/error/exceptions.dart';
 import 'package:task_flow/features/notifications/data/models/app_notification_model.dart';
 import 'package:task_flow/features/notifications/domain/entities/app_notification_entity.dart';
