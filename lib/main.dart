@@ -72,10 +72,8 @@ class TaskFlowApp extends ConsumerWidget {
           create: (_) => sl<FinancialAnalyticsBloc>()
             ..add(const FinancialAnalyticsLoadRequested()),
         ),
-        BlocProvider<NotificationBloc>(
-          lazy: false,
-          create: (_) =>
-              sl<NotificationBloc>()..add(const NotificationsLoadRequested()),
+        BlocProvider.value(
+          value: sl<NotificationBloc>()..add(const NotificationsLoadRequested()),
         ),
         BlocProvider<GamificationBloc>(
           lazy: false,

@@ -371,7 +371,7 @@ Future<void> initDependencies({
   }
 
   if (!sl.isRegistered<NotificationBloc>()) {
-    sl.registerFactory<NotificationBloc>(
+    sl.registerLazySingleton<NotificationBloc>(
       () => NotificationBloc(
         repository: sl<NotificationRepository>(),
       ),
