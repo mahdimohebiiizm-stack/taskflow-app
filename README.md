@@ -23,7 +23,7 @@
 
 ### 1. Executive Summary & Core Philosophies
 
-**TaskFlow (زندگی‌ساز)** is an enterprise-grade, mission-critical productivity and time-allocation platform engineered for deterministic execution across mobile, desktop, and web environments. Architected from inception on uncompromising engineering standards, TaskFlow eradicates cloud-latency dependencies by operating on a local relational state backed by SQLite Schema Version 10 and hardened with **AES-256 SQLCipher Encryption at Rest**.
+**TaskFlow (زندگی‌ساز)** is an enterprise-grade, mission-critical productivity and time-allocation platform engineered for deterministic execution across mobile, desktop, and web environments. Architected from inception on uncompromising engineering standards, TaskFlow eradicates cloud-latency dependencies by operating on an ACID-compliant local relational state backed by SQLite Schema Version 10 and hardened with **AES-256 SQLCipher Encryption at Rest**.
 
 #### Core Architectural Pillars
 - **Zero-Debt Architecture:** Every feature adheres strictly to Clean Architecture boundaries. Temporary hacks, loose typings, and unverified workarounds are systematically forbidden.
@@ -154,12 +154,101 @@ The presentation layer communicates with the business domain strictly through re
 ### 6. Automated CI/CD Pipeline
 
 The repository integrates an automated enterprise GitHub Actions release pipeline (`.github/workflows/release.yml`) triggered on semantic version tags (`v*.*.*`):
-1. **Strict Quality Gate:** Clones the code on `ubuntu-latest`, initializes JDK 17 and Flutter 3.24.x, executes `flutter pub get`, runs static analysis (`flutter analyze --no-fatal-infos`) with zero-warning enforcement, and executes all unit and widget tests (`flutter test`).
-2. **Multi-Platform Build:** Concurrently compiles release artifacts:
-   - Android APK: `flutter build apk --release`
-   - Android App Bundle (AAB): `flutter build appbundle --release`
-   - Web Production Bundle: `flutter build web --release`
-3. **Automated Publishing:** Generates a GitHub Release using `softprops/action-gh-release@v2`, packaging and attaching all 3 production artifacts with automated changelog notes.
+
+```yaml
+name: Enterprise Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  quality-gate:
+    name: Strict Quality Gate & Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Java Development Kit (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter Toolchain
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Project Dependencies
+        run: flutter pub get
+
+      - name: Run Static Code Analysis (Zero Tolerance)
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run Automated Test Suites
+        run: flutter test --coverage
+
+  build-and-release:
+    name: Build Production Artifacts & Release
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Java Development Kit (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter Toolchain
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Project Dependencies
+        run: flutter pub get
+
+      - name: Compile Release Android APK
+        run: flutter build apk --release
+
+      - name: Compile Release Android App Bundle (AAB)
+        run: flutter build appbundle --release
+
+      - name: Compile Release Web Artifacts
+        run: flutter build web --release
+
+      - name: Package Web Build as ZIP
+        run: |
+          cd build/web
+          zip -r ../../build/taskflow-web-release.zip .
+          cd ../..
+
+      - name: Publish GitHub Release with Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          name: TaskFlow Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+            build/taskflow-web-release.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
 
 ---
 
@@ -204,16 +293,59 @@ flutter run
 
 ### ۱. چکیده اجرایی و فلسفه مهندسی سیستم
 
-**تسک‌فلو (زندگی‌ساز)** یک پلتفرم پیشرفته و تجاری در حوزه مدیریت زمان، انضباط فردی و مدیریت مالی است که برای پردازش بلادرنگ و بدون نقص در پلتفرم‌های موبایل، دسکتاپ و وب مهندسی شده است. این سیستم با هدف دستیابی به بالاترین سطح کیفیت نرم‌افزاری، بر پایه‌ ۴ اصل بنیادین مهندسی بنا شده است:
+**تسک‌فلو (زندگی‌ساز)** یک پلتفرم پیشرفته، سازمانی و ماموریت‌محور در حوزه مدیریت زمان، انضباط فردی و مدیریت مالی است که برای پردازش بلادرنگ و بدون نقص در پلتفرم‌های موبایل، دسکتاپ و وب مهندسی شده است. این سامانه با هدف دستیابی به بالاترین سطح کیفیت نرم‌افزاری و حذف کامل تاخیر شبکه، بر پایه‌ ۴ اصل مهندسی غیرقابل‌مذاکره بنا شده و وضعیت داده‌ها را در یک پایگاه داده رابطه‌ای سازگار با استاندارد ACID (نسخه اسکیما ۱۰ SQLite) با **رمزنگاری سطح نظامی AES-256 SQLCipher در حالت سکون** نگهداری می‌کند.
 
-- **معماری بدون بدهی فنی (Zero-Debt Architecture):** تمامی فیچرها بدون استفاده از راه‌حل‌های موقتی، کدهای سست، یا میان‌برهای غیرفنی پیاده‌سازی شده و از استانداردهای سخت‌گیرانه Clean Architecture پیروی می‌کنند.
-- **تاب‌آوری آفلاین‌محور (Offline-First Resilience):** تمامی قابلیت‌های حیاتی برنامه اعم از ثبت تسک‌ها، جلسات پومودورو، تراکنش‌های مالی و اقتصاد گیمیفیکیشن به طور ۱۰۰٪ آفلاین و بدون کوچک‌ترین وابستگی به شبکه اجرا می‌شوند.
-- **ایمنی محض در لایه تایپ‌ها (Strict Type Safety):** اعتبارسنجی کامل داده‌ها در زمان کامپایل از طریق موجودیت‌های ایمیوتبل، شیء ارزش (Value Object) و ساختار تابعی Result Monad مانع از بروز خطاهای زمان اجرا در محیط پروداکشن می‌گردد.
-- **اصل تک‌مسئولیتی (Single Responsibility Principle):** جداسازی کامل وظایف میان ویجت‌های رابط کاربری، تعامل‌گرهای تجاری (UseCases) و آداپتورهای پایگاه داده تضمین شده است.
+#### اصول بنیادین معماری
+- **معماری بدون بدهی فنی (Zero-Debt Architecture):** تمامی قابلیت‌ها منطبق بر مرزهای مشخص Clean Architecture توسعه یافته‌اند. استفاده از راهکارهای موقتی، تایپ‌های سست و میان‌برهای غیرفنی در کل سیستم اکیداً ممنوع است.
+- **تاب‌آوری آفلاین‌محور (Offline-First Resilience):** ۱۰۰٪ امکانات کاربر شامل زمان‌بندی تسک‌ها، جلسات تمرکز عمیق پومودورو، دفاتر کل چندخطی مالی و موتور گیمیفیکیشن بدون نیاز به شبکه به شکل محلی اجرا می‌شوند.
+- **ایمنی محض در لایه تایپ‌ها (Strict Type Safety):** اعتبارسنجی جامع در زمان کامپایل از طریق موجودیت‌های ایمیوتبل، اشیاء ارزش و ساختار تابعی Result Monad مانع از بروز هرگونه خطای پیش‌بینی‌نشده در زمان اجرا می‌گردد.
+- **اصل تک‌مسئولیتی (Single Responsibility Principle):** انسجام بالا و پیوند سست در تمام ویجت‌های لایه ارائه، تعامل‌گرهای منطق تجاری و آداپتورهای ذخیره‌سازی داده رعایت شده است.
 
 ---
 
-### ۲. ماتریس فناوری‌های سیستم
+### ۲. نمودار جریان داده در معماری تمیز (Clean Architecture Data Flow)
+
+```mermaid
+flowchart TD
+    subgraph UI_Layer["لایه ارائه (Flutter و BLoC)"]
+        UI["صفحات و ویجت‌های کاربری (Apple HIG / RTL)"]
+        Bloc["ماشین‌های وضعیت BLoC (جریان یک‌طرفه)"]
+        UI -->|"ارسال رویدادها (Events)"| Bloc
+        Bloc -->|"انتشار وضعیت تغییرناپذیر (State)"| UI
+    end
+
+    subgraph Domain_Layer["لایه خالص دامنه (منطق تجاری)"]
+        UseCases["تعامل‌گرها و UseCaseهای دامنه"]
+        Entities["موجودیت‌ها و اشیاء ارزش (Money, Task)"]
+        RepoContracts["رابط‌های انتزاعی ریپازیتوری"]
+        Bloc -->|"فراخوانی UseCaseها"| UseCases
+        UseCases -->|"بازگرداندن انواع Result"| Bloc
+        UseCases -->|"دسترسی به"| Entities
+        UseCases -->|"ارتباط با"| RepoContracts
+    end
+
+    subgraph Data_Layer["لایه داده (پایداری و امنیت)"]
+        RepoImpl["پیاده‌سازی ریپازیتوری‌ها"]
+        DataSources["منابع داده محلی (نگاشت DAO)"]
+        KeyMgr["مدیریت کلید سخت‌افزاری (KeyStore / Keychain)"]
+        SQLCipher["موتور SQLCipher (اسکیما v10 و AES-256)"]
+        RepoContracts -.->|"پیاده‌سازی توسط"| RepoImpl
+        RepoImpl --> DataSources
+        KeyMgr -->|"تزریق کلید ۲۵۶ بیتی"| SQLCipher
+        DataSources -->|"کوئری‌ها و تراکنش‌های اتمیک ACID"| SQLCipher
+    end
+
+    classDef uiStyle fill:#0A84FF,stroke:#0056B3,color:#FFFFFF,stroke-width:2px;
+    classDef domainStyle fill:#10B981,stroke:#059669,color:#FFFFFF,stroke-width:2px;
+    classDef dataStyle fill:#6366F1,stroke:#4F46E5,color:#FFFFFF,stroke-width:2px;
+    class UI,Bloc uiStyle;
+    class UseCases,Entities,RepoContracts domainStyle;
+    class RepoImpl,DataSources,KeyMgr,SQLCipher dataStyle;
+```
+
+---
+
+### ۳. ماتریس فناوری‌های سیستم
 
 | لایه معماری | فناوری انتخابی | نسخه | هدف فنی و دلیل انتخاب |
 | :--- | :--- | :--- | :--- |
@@ -230,43 +362,185 @@ flutter run
 
 ---
 
-### ۳. الگوهای معماری و امنیت داده‌ها
+### ۴. ساختار درختی دایرکتوری‌های مخزن پروژه
+
+```text
+TaskFlow/
+├── .github/                         # گردش‌های کاری یکپارچه‌سازی و استقرار مداوم (CI/CD)
+│   └── workflows/
+│       └── release.yml              # پایپ‌لاین خودکار انتشار نسخه (APK، AAB، Web و GitHub Release)
+├── android/                         # پیکربندی بومی سیستم‌عامل اندروید، قواعد ProGuard و اسکریپت‌های Gradle
+├── assets/                          # بسته دارایی‌های بصری محلی (لوگوی برند و آیکون‌های وکتور بومی‌سازی‌شده)
+│   └── sounds/                      # بافرهای صوتی از پیش کش‌شده WAV/MP3 با تاخیر صفر (فیدبک صوتی)
+├── ios/                             # پیکربندی بومی iOS، مجوزها (Entitlements) و مشخصات CocoaPods
+├── lib/                             # کدهای مبدا هسته اپلیکیشن (مبتنی بر Clean Architecture)
+│   ├── main.dart                    # نقطه شروع اپلیکیشن، راه‌اندازی اولیه و ارکستراسیون MultiBlocProvider
+│   ├── core/                        # زیرساخت‌های مهندسی سازمانی مشترک در سطح سامانه
+│   │   ├── concurrency/             # راه‌اندازی موازی و ورکر‌های ایزوله در پس‌زمینه (Isolates)
+│   │   ├── di/                      # کانتینر تزریق وابستگی سازمانی (injection_container.dart)
+│   │   ├── error/                   # قراردادهای شکست (Failures) و سلسله‌مراتب کلاس‌های استثنا (Exceptions)
+│   │   ├── notifications/           # مدیریت محلی اعلانات با آگاهی از موقعیت زمانی و تایم‌زون
+│   │   ├── observability/           # دیده‌بان سراسری BLoC جهت ره‌گیری و ثبت لاگ‌های چرخه حیات استیت
+│   │   ├── performance/             # موتور رندرینگ بهینه و مرزبندی بازترسیم ویجت‌ها (RepaintBoundary)
+│   │   ├── result/                  # ساختار برنامه‌نویسی تابعی موناد Result<Success, Failure>
+│   │   ├── security/                # مشتق‌سازی کلید سخت‌افزاری (database_key_manager.dart)
+│   │   ├── services/                # سرویس‌های پشتیبان‌گیری محلی، بافرهای صدا، هپتیک و همگام‌سازی ویجت
+│   │   ├── sync/                    # انتزاع همگام‌سازی آفلاین‌محور و صف عملیات‌های در انتظار
+│   │   ├── theme/                   # توکن‌های بصری تم تاریک مطلق، لایه‌بندی پویا و تایپوگرافی راست‌به‌چپ
+│   │   ├── utils/                   # فرمت‌کننده‌های تاریخ شمسی جلالی و تبدیل‌کننده‌های اعداد به فارسی
+│   │   └── widgets/                 # کامپوننت‌های اتمیک بازکاربردپذیر (BouncingTap و DualLayoutTransition)
+│   └── features/                    # حوزه‌های ماژولار فیچرها (تفکیک‌شده در سه لایه دامین، دیتا و ارائه)
+│       ├── analytics/               # نقشه‌های حرارتی تکمیل تسک‌ها، نمودارهای تعادل ریالی و شاخص‌های کلیدی
+│       ├── dashboard/               # خط زمان برنامه امروز، نشانگر هوشمند تسک‌های معوقه و لایه‌بندی اختصاصی
+│       ├── gamification/            # موتور ارتقای سطح، سپرهای محافظ استمرار و دفتر کل امتیازات XP
+│       ├── navigation/              # نوار ناوبری شناور پایینی و ارکستراسیون پوسته اصلی صفحات
+│       ├── notifications/           # صندوق ورودی اعلانات دائمی و تاریخچه هشدارهای سیستمی
+│       ├── onboarding/              # فرآیند تعاملی معرفی قابلیت‌ها در نخستین راه‌اندازی برنامه
+│       ├── settings/                # تنظیمات کاربر، سوئیچ تارکننده حالت استراحت و بازرس تنظیمات فنی
+│       ├── splash/                  # صفحه اسپلش بومی با لودینگ سریع و بدون پرش فریم
+│       └── tasks/                   # هسته مدیریت تسک‌ها، ساب‌تسک‌ها، تایمر پومودورو و دفتر ثبت هزینه‌ها
+├── test/                            # سوئیت جامع آزمون‌های خودکار (تست‌های واحد، تست‌های BLoC و قراردادهای ویجت)
+├── .gitignore                       # قوانین پالایش‌شده گیت جهت مسدودسازی نشت فایل‌های باینری و دیباگ
+├── analysis_options.yaml            # تنظیمات قوانین سخت‌گیرانه تحلیل استاتیک و قواعد لینتر دارت
+└── pubspec.yaml                     # مانیفست اصلی پروژه شامل اعلان وابستگی‌ها، فونت‌ها و دارایی‌ها
+```
+
+---
+
+### ۵. الگوهای معماری و امنیت داده‌ها
 
 #### مدیریت وضعیت واکنشی آفلاین‌محور (BLoC Engine)
-لایه ارائه (UI) منحصراً از طریق پایپ‌لاین‌های رویدادمحور با منطق تجاری در ارتباط است. ویجت‌ها ایونت‌های تغییرناپذیر صادر کرده و BLoC پس از پردازش از طریق UseCaseها، استیت‌های جدید را ساطع می‌کند. هیچ کامپوننتی در UI دسترسی مستقیم به پایگاه داده ندارد.
+لایه ارائه (UI) منحصراً از طریق پایپ‌لاین‌های رویدادمحور و واکنش‌گرا با لایه منطق تجاری ارتباط برقرار می‌کند. ویجت‌ها رویدادهای تغییرناپذیر (Events) را صادر می‌کنند؛ BLoCها با فراخوانی UseCaseها، وضعیت جدید (State) را به شکل تغییرناپذیر ساطع می‌نمایند. هیچ درایور یا کوئری مستقیم پایگاه داده در لایه UI وجود ندارد.
 
 #### استحکامات رمزنگاری و حفاظت اطلاعات (Cryptographic Hardening)
-۱. **رمزنگاری در حالت سکون با AES-256:** فایل محلی دیتابیس (`task_flow_v1.db`) به وسیله موتور SQLCipher با رمزنگاری نظامی محافظت شده و امکان استخراج داده‌ها در دستگاه‌های روت/جیلبریک‌شده وجود ندارد.  
-۲. **مدیریت کلید در سطح سخت‌افزار (`DatabaseKeyManager`):** کلید ۲۵۶ بیتی به شکل کاملاً رمزنگاری‌شده توسط `Random.secure()` تولید و در Keystore سخت‌افزاری اندروید و Keychain سیستم‌عامل iOS ذخیره می‌شود.  
-۳. **کلیدهای اصلی توزیع‌شده (UUID v4):** تمام جداول برنامه از کلیدهای متنی UUID v4 به عنوان کلید اصلی استفاده می‌کنند تا در فرآیند همگام‌سازی ابری هیچ تداخلی رخ ندهد.  
-۴. **یکپارچگی رابطه‌ای دیتابیس:** فعال‌سازی اجباری `PRAGMA foreign_keys = ON` در زمان اتصال، اجرای اتمیک تراکنش‌ها و حذف آبشاری ساب‌تسک‌ها و هزینه‌ها را تضمین می‌کند.  
-۵. **حذف خطای ممیز شناور در امور مالی:** مبالغ به صورت عدد صحیح ریال ذخیره شده و خطاهای رایج ممیز شناور را به صفر رسانده است.
+- **رمزنگاری در حالت سکون با AES-256:** فایل محلی دیتابیس (`task_flow_v1.db`) به وسیله موتور SQLCipher با رمزنگاری نظامی AES-256 محافظت شده و دسترسی فیزیکی، استخراج حافظه یا ابزارهای روت/جیلبریک قادر به خواندن داده‌ها نیستند.
+- **مدیریت کلید در سطح سخت‌افزار (`DatabaseKeyManager`):** کلید ۲۵۶ بیتی به شکل کاملاً رمزنگاری‌شده با ۳۲ بایت انتروپی تصادفی امن (`Random.secure()`) تولید و در Keystore سخت‌افزاری اندروید (`encryptedSharedPreferences`) و Keychain سیستم‌عامل iOS ذخیره می‌شود.
+- **شناسه‌های اصلی توزیع‌شده (UUID v4):** تمام جداول برنامه از شناسه‌های متنی تصادفی UUID v4 به عنوان کلید اصلی (`TEXT PRIMARY KEY`) استفاده می‌کنند تا در فرآیند همگام‌سازی ابری آینده هیچ‌گونه تداخل کلیدی رخ ندهد.
+- **یکپارچگی رابطه‌ای دیتابیس:** فعال‌سازی اجباری `PRAGMA foreign_keys = ON` در زمان اتصال، اجرای اتمیک تراکنش‌ها و حذف آبشاری ساب‌تسک‌ها و هزینه‌ها (`ON DELETE CASCADE`) و لغو ارجاع جلسات تمرکز (`ON DELETE SET NULL`) را تضمین می‌کند.
+- **محاسبات مالی بدون ممیز شناور:** مبالغ به صورت عدد صحیح ریال ذخیره شده و در شیء ارزش `Money` کپسوله شده‌اند تا خطاهای رایج محاسبات ممیز شناور (IEEE-754) به صفر برسد.
 
 ---
 
-### ۴. خط لوله خودکار انتشار (CI/CD Pipeline)
+### ۶. خط لوله خودکار انتشار (CI/CD Pipeline)
 
 پروژه مجهز به یک پایپ‌لاین خودکار در بستر GitHub Actions (`.github/workflows/release.yml`) است که با تگ‌گذاری نگارش‌ها (`v*.*.*`) فعال می‌شود:
-- **دروازه کنترل کیفیت (Quality Gate):** بررسی لود وابستگی‌ها، اجرای تحلیل ایستای کد (`flutter analyze --no-fatal-infos`) بدون اخطار و اجرای موفق تمامی تست‌های واحد و ویجت (`flutter test`).
-- **کامپایل همزمان نسخه‌ها:** ساخت خروجی‌های رسمی Release شامل فایل APK، بسته اختصاصی گوگل‌پلی (AAB) و نسخه وب.
-- **انتشار خودکار در گیت‌هاب:** بارگذاری و الصاق خودکار ۳ خروجی پروداکشن به صفحه انتشار رسمی GitHub Release.
+
+```yaml
+name: Enterprise Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  quality-gate:
+    name: Strict Quality Gate & Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Java Development Kit (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter Toolchain
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Project Dependencies
+        run: flutter pub get
+
+      - name: Run Static Code Analysis (Zero Tolerance)
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run Automated Test Suites
+        run: flutter test --coverage
+
+  build-and-release:
+    name: Build Production Artifacts & Release
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Java Development Kit (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter Toolchain
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Project Dependencies
+        run: flutter pub get
+
+      - name: Compile Release Android APK
+        run: flutter build apk --release
+
+      - name: Compile Release Android App Bundle (AAB)
+        run: flutter build appbundle --release
+
+      - name: Compile Release Web Artifacts
+        run: flutter build web --release
+
+      - name: Package Web Build as ZIP
+        run: |
+          cd build/web
+          zip -r ../../build/taskflow-web-release.zip .
+          cd ../..
+
+      - name: Publish GitHub Release with Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          name: TaskFlow Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+            build/taskflow-web-release.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
 
 ---
 
-### ۵. راهنمای راه‌اندازی سریع در محیط توسعه
+### ۷. راهنمای راه‌اندازی سریع در محیط توسعه
+
+#### پیش‌نیازهای محیط اجرا
+- **کیت توسعه نرم‌افزار Flutter:** نسخه `>= 3.4.0` (کانال Stable)
+- **کیت توسعه نرم‌افزار Dart:** نسخه `>= 3.4.0 < 4.0.0`
+- **ابزارهای کامپایل محلی:** Android Studio (SDK 34+) / Xcode (15+) / Windows C++ Build Tools (CMake)
 
 ```bash
-# ۱. کلون کردن مخزن پروژه
+# ۱. کلون کردن مخزن امن پروژه
 git clone https://github.com/<your-organization>/TaskFlow.git
 cd TaskFlow
 
-# ۲. دریافت پکیج‌های تایید شده
+# ۲. دریافت وابستگی‌ها
 flutter pub get
 
-# ۳. اجرای تحلیل ایستای کد (تضمین صفر بودن خطاها)
+# ۳. اعتبارسنجی تحلیل استاتیک (تحمل صفر در برابر اخطارها)
 flutter analyze --no-fatal-infos
 
-# ۴. اجرای آزمون‌های خودکار
+# ۴. اجرای سوئیت آزمون‌های خودکار
 flutter test
 
 # ۵. اجرای برنامه در حالت دیباگ
@@ -275,7 +549,7 @@ flutter run
 
 ---
 
-### ۶. حاکمیت فنی و مالکیت پروژه
+### ۸. حاکمیت فنی و مالکیت پروژه
 
 **تیم راهبری فنی TaskFlow**  
 - **معمار ارشد سیستم و مدیر ارشد DevOps:** گروه مهندسی معماری Anti-Gravity  
