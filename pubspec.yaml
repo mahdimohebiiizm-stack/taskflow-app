@@ -1,0 +1,68 @@
+name: task_flow
+description: A commercial-grade, Clean Architecture Task Flow application.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  # UI & Theme Providers / Assets
+  flutter_riverpod: ^2.5.1
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.3.0
+  # State Management (Clean Architecture Domain/Presentation)
+  flutter_bloc: ^8.1.6
+  # Value Equality (Zero codegen)
+  equatable: ^2.0.5
+  # Service Locator / Dependency Injection
+  get_it: ^8.0.0
+  # Local ACID Persistence (SQLite)
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+  # Cryptographically strong UUID v4 generation for Entities
+  uuid: ^4.5.0
+  # Local Notifications & Timezone Scheduling Engine
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
+  # Gallery Image Picker, Gamification Confetti & Audio Feedback Engine
+  image_picker: ^1.1.2
+  confetti: ^0.7.0
+  audioplayers: ^6.1.0
+  flutter_slidable: ^3.1.1
+  path_provider: ^2.1.6
+  share_plus: ^13.3.1
+  file_picker: ^13.1.0
+  home_widget: ^0.10.0
+  shared_preferences: ^2.5.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  bloc_test: ^9.1.7
+  mocktail: ^1.0.4
+  sqflite_common_ffi: ^2.3.3
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_logo.png"
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_logo.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/sounds/
+
