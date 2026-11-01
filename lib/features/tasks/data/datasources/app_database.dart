@@ -1,6 +1,7 @@
 import 'package:path/path.dart' as p;
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:task_flow/core/error/exceptions.dart';
+import 'package:task_flow/core/security/database_key_manager.dart';
 import 'package:task_flow/features/gamification/data/models/gamification_model.dart';
 import 'package:task_flow/features/notifications/data/models/app_notification_model.dart';
 import 'package:task_flow/features/tasks/data/models/expense_item_model.dart';
@@ -20,24 +21,35 @@ final class AppDatabase {
 
   const AppDatabase._();
 
-  /// Opens and configures a SQLite [Database] instance.
+  /// Opens and configures an encrypted SQLCipher [Database] instance.
   ///
   /// Pass [databasePath] (e.g., [inMemoryDatabasePath]) for isolated testing,
   /// or leave null to resolve the platform database directory.
+  /// If [encryptionKey] is omitted and not in-memory, [DatabaseKeyManager] resolves or generates
+  /// the hardware-backed 256-bit encryption key.
   static Future<Database> open({
     String? databasePath,
     DatabaseFactory? databaseFactory,
     int version = schemaVersion,
+    String? encryptionKey,
+    DatabaseKeyManager? keyManager,
   }) async {
     try {
       final factory = databaseFactory ?? databaseFactorySqflitePlugin;
       final resolvedPath = databasePath ??
           p.join(await factory.getDatabasesPath(), defaultDatabaseFileName);
 
+      final password = encryptionKey ??
+          (databasePath == inMemoryDatabasePath
+              ? null
+              : await (keyManager ?? const DatabaseKeyManager())
+                  .getOrCreateEncryptionKey());
+
       return await factory.openDatabase(
         resolvedPath,
         options: OpenDatabaseOptions(
           version: version,
+          password: password,
           onConfigure: configureDatabase,
           onCreate: (db, targetVersion) async {
             await createV1Schema(db);

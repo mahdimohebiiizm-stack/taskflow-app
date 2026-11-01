@@ -1,0 +1,92 @@
+name: Enterprise Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  quality-gate:
+    name: Strict Quality Gate & Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Java Development Kit (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter Toolchain
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Project Dependencies
+        run: flutter pub get
+
+      - name: Run Static Code Analysis (Zero Tolerance)
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run Automated Test Suites
+        run: flutter test --coverage
+
+  build-and-release:
+    name: Build Production Artifacts & Release
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Java Development Kit (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter Toolchain
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Project Dependencies
+        run: flutter pub get
+
+      - name: Compile Release Android APK
+        run: flutter build apk --release
+
+      - name: Compile Release Android App Bundle (AAB)
+        run: flutter build appbundle --release
+
+      - name: Compile Release Web Artifacts
+        run: flutter build web --release
+
+      - name: Package Web Build as ZIP
+        run: |
+          cd build/web
+          zip -r ../../build/taskflow-web-release.zip .
+          cd ../..
+
+      - name: Publish GitHub Release with Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          name: TaskFlow Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+            build/taskflow-web-release.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
