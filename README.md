@@ -282,8 +282,8 @@ flutter run
 ### 8. Technical Authority & Authors
 
 **TaskFlow Core Architecture Team**  
-- **Lead System Architect & DevOps Master:** Principal Engineering & Anti-Gravity Architecture Group  
-- **Product Ownership:** Commercial Product Owner  
+- **Lead System Architect & DevOps Engineer:** Mahdi Mohebi Nia  
+- **Product Ownership:** Commercial Product Owner
 
 ---
 
@@ -552,8 +552,8 @@ flutter run
 ### ۸. حاکمیت فنی و مالکیت پروژه
 
 **تیم راهبری فنی TaskFlow**  
-- **معمار ارشد سیستم و مدیر ارشد DevOps:** گروه مهندسی معماری Anti-Gravity  
-- **مالکیت محصول:** Product Owner تجاری  
+- **معمار ارشد سیستم و مهندس DevOps:** مهدی محبی‌نیا  
+- **مالکیت محصول:** Product Owner تجاری
 
 *تسک‌فلو نرم‌افزاری انحصاری و طراحی‌شده بر پایه‌ بالاترین استانداردهای مهندسی نرم‌افزار است. هرگونه تغییر در لایه‌های بنیادین بدون تاییدیه فنی اکیداً ممنوع می‌باشد.*
 
