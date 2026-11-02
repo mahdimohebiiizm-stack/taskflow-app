@@ -183,7 +183,7 @@ jobs:
       - name: Setup Flutter Toolchain
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.x'
+          flutter-version: '3.27.x'
           channel: 'stable'
           cache: true
 
@@ -213,7 +213,7 @@ jobs:
       - name: Setup Flutter Toolchain
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.x'
+          flutter-version: '3.27.x'
           channel: 'stable'
           cache: true
 
@@ -255,8 +255,8 @@ jobs:
 ### 7. Local Development Quick Start
 
 #### Prerequisites
-- **Flutter SDK:** `>= 3.24.0` (Stable channel)
-- **Dart SDK:** `>= 3.5.0 < 4.0.0`
+- **Flutter SDK:** `>= 3.27.0` (Stable channel)
+- **Dart SDK:** `>= 3.6.0 < 4.0.0`
 - **Toolchains:** Android Studio (SDK 34+) / Xcode (15+) / Windows C++ Build Tools (CMake)
 
 ```bash
@@ -453,7 +453,7 @@ jobs:
       - name: Setup Flutter Toolchain
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.x'
+          flutter-version: '3.27.x'
           channel: 'stable'
           cache: true
 
@@ -483,7 +483,7 @@ jobs:
       - name: Setup Flutter Toolchain
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.x'
+          flutter-version: '3.27.x'
           channel: 'stable'
           cache: true
 
@@ -525,8 +525,8 @@ jobs:
 ### ۷. راهنمای راه‌اندازی سریع در محیط توسعه
 
 #### پیش‌نیازهای محیط اجرا
-- **کیت توسعه نرم‌افزار Flutter:** نسخه `>= 3.24.0` (کانال Stable)
-- **کیت توسعه نرم‌افزار Dart:** نسخه `>= 3.5.0 < 4.0.0`
+- **کیت توسعه نرم‌افزار Flutter:** نسخه `>= 3.27.0` (کانال Stable)
+- **کیت توسعه نرم‌افزار Dart:** نسخه `>= 3.6.0 < 4.0.0`
 - **ابزارهای کامپایل محلی:** Android Studio (SDK 34+) / Xcode (15+) / Windows C++ Build Tools (CMake)
 
 ```bash
